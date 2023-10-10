@@ -1,6 +1,7 @@
 # shellcode_injector README.md
-##Introduction
-shellrunner is a simple Windows-based tool designed to load and execute a given shellcode from a binary file. It allows users to specify the memory address to inject the shellcode, or it will use a default hardcoded address if not provided.
+## Introduction
+shellrunner is a simple Windows-based tool designed to load and execute a given shellcode from a binary file. This differs from blobrunner and other tools like it by simplifying the injection process.
+Compile with debugging symbols. During dynamic analysis, inspect the `execute_shellcode` function and put a breakpoint on the instruction that calls the shellcode.
 
 ## Prerequisites
 * A Windows environment.
@@ -14,11 +15,10 @@ gcc -O0 -g -o shellrunner.exe shellrunner.c
 
 ## Usage
 ```bash
-shellrunner.exe <path to shellcode> [address to inject to]
+shellrunner.exe <path to shellcode>
 ```
 
 * <path to shellcode\>: Path to the binary file containing the shellcode you want to execute.
-* [address to inject to]: (Optional) Memory address where you want to inject the shellcode. If not specified, a default address of 0x40000000 will be used.
 
 ### Example
 ```bash
