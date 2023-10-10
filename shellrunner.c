@@ -1,63 +1,46 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 #include <windows.h>
 
-// Hardcoded address to inject to, if not specified by the user.
-#define DEFAULT_ADDRESS 0x40000000
+void execute_shellcode(unsigned char* shellcode, size_t size) {
+    void *exec_memory = VirtualAlloc(0, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+    if (!exec_memory) {
+        fprintf(stderr, "Memory allocation failed!\n");
+        return;
+    }
+    memcpy(exec_memory, shellcode, size);
+
+    void (*func)();
+    func = (void (*)())exec_memory;
+
+    func();
+
+    VirtualFree(exec_memory, 0, MEM_RELEASE);
+}
 
 int main(int argc, char **argv) {
-    unsigned char *shellcode;
-    size_t shellcode_size;
-    FILE *file;
-    void *target_address = (void *)DEFAULT_ADDRESS;
-
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s <path to shellcode> [address to inject to]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <path_to_shellcode_file>\n", argv[0]);
         return 1;
     }
 
-    if (argc == 3) {
-        sscanf(argv[2], "%p", &target_address);
-    }
-
-    // Read the shellcode from the specified file
-    file = fopen(argv[1], "rb");
-    if (!file) {
-        perror("Failed to open shellcode file");
+    FILE* fp = fopen(argv[1], "rb");
+    if (!fp) {
+        fprintf(stderr, "Error opening file: %s\n", argv[1]);
         return 1;
     }
 
-    fseek(file, 0, SEEK_END);
-    shellcode_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    fseek(fp, 0L, SEEK_END);
+    size_t fsize = ftell(fp);
+    fseek(fp, 0L, SEEK_SET);
 
-    shellcode = (unsigned char *)malloc(shellcode_size);
-    if (!shellcode) {
-        perror("Failed to allocate memory for shellcode");
-        fclose(file);
-        return 1;
-    }
+    unsigned char* buffer = (unsigned char*)malloc(fsize);
+    fread(buffer, 1, fsize, fp);
+    fclose(fp);
 
-    fread(shellcode, 1, shellcode_size, file);
-    fclose(file);
+    execute_shellcode(buffer, fsize);
 
-    // Allocate memory for the shellcode
-    void *allocated_memory = VirtualAlloc(target_address, shellcode_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-    if (!allocated_memory) {
-        perror("Failed to allocate memory at target address");
-        free(shellcode);
-        return 1;
-    }
-
-    // Copy the shellcode to the target memory region
-    memcpy(allocated_memory, shellcode, shellcode_size);
-
-    // Execute the shellcode
-    void (*shellcode_function)() = (void (*)())allocated_memory;
-    shellcode_function();
-
-    // Cleanup
-    VirtualFree(allocated_memory, 0, MEM_RELEASE);
-    free(shellcode);
+    free(buffer);
     return 0;
 }
