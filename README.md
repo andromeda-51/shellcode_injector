@@ -1,6 +1,6 @@
 # shellcode_injector README.md
 ## Introduction
-shellrunner is a simple Windows-based tool designed to load and execute a given shellcode from a binary file. This differs from blobrunner and other tools like it by simplifying the injection process.
+shellrunner is a simple Windows-based tool designed to load and execute shellcode from a binary file. This differs from blobrunner and other tools like it by simplifying the injection process.
 Compile with debugging symbols. During dynamic analysis, inspect the `execute_shellcode` function and put a breakpoint on the instruction that calls the shellcode.
 
 ## Prerequisites
