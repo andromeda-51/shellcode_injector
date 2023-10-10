@@ -20,7 +20,7 @@ shellrunner.exe <path to shellcode>
 
 * <path to shellcode\>: Path to the binary file containing the shellcode you want to execute.
 
-![Alt text](docs/debugger.png?raw=true "Title")
+![Alt text](docs/debugger.png?raw=true "Debugger Window")
 
 
 ### Example
